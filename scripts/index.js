@@ -32,11 +32,6 @@ const initialCards = [
     }
 ];
 
-initialCards.forEach(function(card) {
-  console.log(card.name);
-});
-
-
 const editButton = document.querySelector(".profile__edit-button");
 const popup = document.querySelector(".popup");
 const closeButton = popup.querySelector(".popup__close");
@@ -48,6 +43,7 @@ const nameInput = document.querySelector(".popup__input_type_name");
 const descriptionInput = document.querySelector(".popup__input_type_description");
 
 const formElement = document.querySelector(".popup__form");
+const saveButton = formElement.querySelector(".popup__button");
 
 function openModal(modal) {
   modal.classList.add("popup_is-opened");
@@ -101,7 +97,6 @@ function handleDeleteButtonClick(evt) {
   card.remove();
 }
 
-// Pop-up da imagem
 const imagePopup = document.querySelector("#image-popup");
 const imagePopupImage = imagePopup.querySelector(".popup__image");
 const imagePopupCaption = imagePopup.querySelector(".popup__caption");
@@ -157,11 +152,14 @@ initialCards.forEach((card) => {
   renderCard(card.name, card.link, cardContainer);
 });
 
-// Pop-up "Novo Local"
 const addCardButton = document.querySelector(".profile__add-button");
 const addCardModal = document.querySelector("#new-card-popup");
 const addCardCloseButton = addCardModal.querySelector(".popup__close");
 const addCardForm = addCardModal.querySelector("#new-card-form");
+
+popup.addEventListener("click", handleOverlayClick);
+imagePopup.addEventListener("click", handleOverlayClick);
+addCardModal.addEventListener("click", handleOverlayClick);
 
 addCardButton.addEventListener("click", () => {
   addCardForm.reset();
@@ -172,6 +170,7 @@ addCardButton.addEventListener("click", () => {
 addCardCloseButton.addEventListener("click", () => {
   closeModal(addCardModal);
 });
+
 
 function handleOverlayClick(evt) {
   if (evt.target.classList.contains("popup")) {
@@ -199,11 +198,6 @@ function handleCardFormSubmit(evt) {
 
 addCardForm.addEventListener("submit", handleCardFormSubmit);
 
-const nameInput = document.querySelector(".popup__input_type_name");
-const descriptionInput = document.querySelector(".popup__input_type_description");
-
-const formElement = document.querySelector(".popup__form");
-const saveButton = formElement.querySelector(".popup__button");
 
 function toggleSaveButton() {
   saveButton.disabled = !formElement.checkValidity();
