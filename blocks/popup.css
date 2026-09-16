@@ -124,6 +124,18 @@
   cursor: default;
 }
 
+.popup__input-error {
+  color: #FF0000;
+   font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 100%;
+}
+
+.popup__input_type_error{
+ border: 1px solid #FF0000;
+}
+
 @media screen and (max-width: 544px) {
   .popup {
     bottom: 112px;

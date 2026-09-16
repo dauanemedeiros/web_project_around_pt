@@ -42,6 +42,9 @@ const profileDescription = document.querySelector(".profile__description");
 const nameInput = document.querySelector(".popup__input_type_name");
 const descriptionInput = document.querySelector(".popup__input_type_description");
 
+const nameError = nameInput.nextElementSibling;
+const descriptionError = descriptionInput.nextElementSibling;
+
 const formElement = document.querySelector(".popup__form");
 const saveButton = formElement.querySelector(".popup__button");
 
@@ -51,6 +54,26 @@ function openModal(modal) {
 
 function closeModal(modal) {
   modal.classList.remove("popup_is-opened");
+}
+
+function showInputError(input, errorElement) {
+  errorElement.textContent = input.validationMessage;
+
+  input.classList.add("popup__input_type_error");
+}
+
+function hideInputError(input, errorElement) {
+  errorElement.textContent = "";
+
+  input.classList.remove("popup__input_type_error");
+}
+
+function checkInputValidity(input, errorElement) {
+  if (!input.validity.valid) {
+    showInputError(input, errorElement);
+  } else {
+    hideInputError(input, errorElement);
+  }
 }
 
 function fillProfileForm() {
@@ -203,8 +226,15 @@ function toggleSaveButton() {
   saveButton.disabled = !formElement.checkValidity();
 }
 
-nameInput.addEventListener("input", toggleSaveButton);
-descriptionInput.addEventListener("input", toggleSaveButton);
+nameInput.addEventListener("input", () => {
+  checkInputValidity(nameInput, nameError);
+  toggleSaveButton();
+});
+
+descriptionInput.addEventListener("input", () => {
+  checkInputValidity(descriptionInput, descriptionError);
+  toggleSaveButton();
+});
 
 const addCardNameInput = addCardForm.querySelector(
   ".popup__input_type_card-name"
