@@ -244,12 +244,23 @@ const addCardLinkInput = addCardForm.querySelector(
 );
 const addCardSubmitButton = addCardForm.querySelector(".popup__button");
 
+const addCardNameError = addCardNameInput.nextElementSibling;
+const addCardLinkError = addCardLinkInput.nextElementSibling;
+
 function toggleAddCardButton() {
   addCardSubmitButton.disabled = !addCardForm.checkValidity();
 }
 
-addCardNameInput.addEventListener("input", toggleAddCardButton);
-addCardLinkInput.addEventListener("input", toggleAddCardButton);
+addCardNameInput.addEventListener("input", () => {
+  checkInputValidity(addCardNameInput, addCardNameError);
+  toggleAddCardButton();
+});
+
+addCardLinkInput.addEventListener("input", () => {
+  checkInputValidity(addCardLinkInput, addCardLinkError);
+  toggleAddCardButton();
+});
+
 
 function handleEscKeydown(evt) {
   if (evt.key === "Escape") {
