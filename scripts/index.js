@@ -1,3 +1,6 @@
+import { Card } from "./cards.js";
+import { FormValidator } from "./FormValidator.js";
+
 console.log("JavaScript conectado com sucesso!");
 
 const initialCards = [
@@ -167,7 +170,8 @@ function getCardElement({
 }
 
 function renderCard(name, link, cardContainer) {
-  const cardElement = getCardElement({ name, link });
+  const newCard = new Card(name, link, "#card-template");
+  const cardElement = newCard.generateCard();
   cardContainer.prepend(cardElement);
 }
 
