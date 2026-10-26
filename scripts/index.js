@@ -1,5 +1,10 @@
 import { Card } from "./cards.js";
 import { FormValidator } from "./FormValidator.js";
+import { Popup } from "./Popup.js";
+import { PopupWithForm } from "./PopupWithForm.js"
+import { PopupWithImage } from "./PopupWithImage.js"
+import { Section } from "./Section.js";
+import { UserInfo } from "./UserInfo.js"
 
 console.log("JavaScript conectado com sucesso!");
 

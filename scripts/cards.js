@@ -15,7 +15,7 @@ export class Card {
   }
 
   _handleImageClick() {
-    this._handleImageClickCallback(this._name, this._link);
+    this._handleImageClickCallback(this._link, this._name);
   }
 
   _getTemplate() {
