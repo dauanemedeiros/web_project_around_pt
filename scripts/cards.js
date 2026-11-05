@@ -15,8 +15,8 @@ export class Card {
   }
 
   _handleImageClick() {
-    this._handleImageClickCallback(this._link, this._name);
-  }
+  this._handleImageClickCallback(this._name, this._link);
+}
 
   _getTemplate() {
     const template = document.querySelector(this._templateSelector);

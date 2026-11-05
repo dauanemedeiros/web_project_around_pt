@@ -112,6 +112,7 @@ const validationConfig = {
 
 editPopup.setEventListeners();
 addCardPopup.setEventListeners();
+imagePopup.setEventListeners();
 
 
 const editFormValidator = new FormValidator(
@@ -129,50 +130,17 @@ addCardFormValidator.setEventListeners();
 
 
 editButton.addEventListener("click", () => {
-  nameInput.value = profileTitle.textContent;
-  aboutInput.value = profileDescription.textContent;
+  const userData = userInfo.getUserInfo();
+
+  nameInput.value = userData.name;
+  aboutInput.value = userData.job;
 
   editFormValidator.resetValidation();
   editPopup.open();
 });
 
-
-editForm.addEventListener("submit", (evt) => {
-  evt.preventDefault();
-
-  if (!editForm.checkValidity()) {
-    return;
-  }
-
-  userInfo.setUserInfo({
-  name: nameInput.value,
-  job: aboutInput.value
-});
-
-  closeModal(editPopup);
-});
-
-const userData = userInfo.getUserInfo();
-
-nameInput.value = userData.name;
-aboutInput.value = userData.job;
-
 addCardButton.addEventListener("click", () => {
   addCardForm.reset();
   addCardFormValidator.resetValidation();
   addCardPopup.open();
-});
-
-addCardForm.addEventListener("submit", (evt) => {
-  evt.preventDefault();
-
-  if (!addCardForm.checkValidity()) {
-    return;
-  }
-
-  renderCard(titleInput.value, imageInput.value, cardContainer);
-
-  closeModal(addCardPopup);
-  addCardForm.reset();
-  addCardFormValidator.resetValidation();
 });
