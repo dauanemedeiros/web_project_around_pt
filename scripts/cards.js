@@ -14,7 +14,7 @@ export class Card {
     evt.currentTarget.closest(".card").remove();
   }
 
-  _handleImageClick() {
+_handleImageClick() {
   this._handleImageClickCallback(this._name, this._link);
 }
 

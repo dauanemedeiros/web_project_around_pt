@@ -1,6 +1,5 @@
 import { Card } from "./cards.js";
 import { FormValidator } from "./FormValidator.js";
-import { Popup } from "./Popup.js";
 import { PopupWithForm } from "./PopupWithForm.js"
 import { PopupWithImage } from "./PopupWithImage.js"
 import { Section } from "./Section.js";
@@ -48,13 +47,13 @@ const userInfo = new UserInfo({
 const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
   userInfo.setUserInfo({
     name: inputValues.name,
-    job: inputValues.job
+    job: inputValues.description
   });
 });
 
 const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
   const card = new Card(
-    inputValues.name,
+    inputValues["place-name"],
     inputValues.link,
     "#card-template",
     handleImageClick
@@ -83,7 +82,7 @@ const imageInput = document.querySelector("#image-input");
 const cardContainer = document.querySelector(".cards__list");
 
 function handleImageClick(name, link) {
-  imagePopup.open(name, link);
+  imagePopup.open(link, name);
 }
 
 const section = new Section({
@@ -127,7 +126,6 @@ const addCardFormValidator = new FormValidator(
 
 editFormValidator.setEventListeners();
 addCardFormValidator.setEventListeners();
-
 
 editButton.addEventListener("click", () => {
   const userData = userInfo.getUserInfo();
