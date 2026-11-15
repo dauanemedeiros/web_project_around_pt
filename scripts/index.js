@@ -8,38 +8,6 @@ import { Api } from "./Api.js";
 
 console.log("JavaScript conectado com sucesso!");
 
-const initialCards = [
-    { 
-        name: "Vale de Yosemite",
-        link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg"
-    },
-
-    {
-        name: "Lago Louise",
-        link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lake-louise.jpg"
-    },
-
-    {  
-        name: "Montanhas Carecas",
-        link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_bald-mountains.jpg"
-    },
-
-    {  
-        name: "Latemar",
-        link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_latemar.jpg"
-    },
-
-    { 
-        name: "Parque Nacional Vanoise",
-        link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_vanoise.jpg"
-    },
-
-    { 
-        name: "Lago di Braies",
-        link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lago.jpg"
-    }
-];
-
 const api = new Api({
   baseUrl: "https://around-api.pt-br.tripleten-services.com/v1",
   headers: {
@@ -48,19 +16,46 @@ const api = new Api({
   }
 });
 
-api.getAppInfo()
-  .then(([userData, initialCards]) => {
-    console.log("Informações do usuário:", userData);
-    console.log("Cartões:", initialCards);
-  })
-  .catch((err) => {
-    console.log("Erro ao carregar informações:", err);
-  });
-
 const userInfo = new UserInfo({
   nameSelector: ".profile__title",
   jobSelector: ".profile__description"
 });
+
+let section;
+
+api.getAppInfo()
+  .then(([userData, cardsFromServer]) => {
+
+    // Atualizar as informações do perfil
+    userInfo.setUserInfo({
+      name: userData.name,
+      job: userData.about
+    });
+
+  
+    section = new Section({
+      items: cardsFromServer,
+      renderer: (item) => {
+        const card = new Card(
+  item.name,
+  item.link,
+  "#card-template",
+  handleImageClick,
+  item._id,
+  item.isLiked,
+  api
+);
+
+        return card.generateCard();
+      }
+    }, ".cards__list");
+
+    section.renderItems();
+
+  })
+  .catch((err) => {
+    console.log("Erro ao carregar informações:", err);
+  });
 
 const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
   userInfo.setUserInfo({
@@ -70,14 +65,27 @@ const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
 });
 
 const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
-  const card = new Card(
+  api.addCard(
     inputValues["place-name"],
-    inputValues.link,
-    "#card-template",
-    handleImageClick
-  );
+    inputValues.link
+  )
+    .then((cardData) => {
+      const card = new Card(
+  cardData.name,
+  cardData.link,
+  "#card-template",
+  handleImageClick,
+  cardData._id,
+  cardData.isLiked,
+  api
+);
 
-  section.addItem(card.generateCard());
+      section.addItem(card.generateCard());
+      addCardPopup.close();
+    })
+    .catch((err) => {
+      console.log("Erro ao adicionar cartão:", err);
+    });
 });
 
 const imagePopup = new PopupWithImage("#image-popup");
@@ -102,22 +110,6 @@ const cardContainer = document.querySelector(".cards__list");
 function handleImageClick(name, link) {
   imagePopup.open(link, name);
 }
-
-const section = new Section({
-  items: initialCards,
-  renderer: (item) => {
-  const card = new Card(
-    item.name,
-    item.link,
-    "#card-template",
-    handleImageClick
-  );
-
-  return card.generateCard();
-}
-}, ".cards__list");
-
-section.renderItems();
 
 const validationConfig = {
   inputSelector: ".popup__input",

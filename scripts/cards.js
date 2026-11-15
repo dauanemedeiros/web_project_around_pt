@@ -1,13 +1,34 @@
 export class Card {
-  constructor(name, link, templateSelector, handleImageClick) {
+  constructor(name, link, templateSelector, handleImageClick, cardId, isLiked, api) {
     this._name = name;
     this._link = link;
     this._templateSelector = templateSelector;
     this._handleImageClickCallback = handleImageClick;
+    this._cardId = cardId;
+    this._isLiked = isLiked;
+    this._api = api;
   }
 
   _handleLikeButtonClick(evt) {
-    evt.currentTarget.classList.toggle("card__like-button_is-active");
+    const likeButton = evt.currentTarget;
+
+    likeButton.disabled = true;
+
+    this._api.changeLikeCardStatus(this._cardId, this._isLiked)
+      .then((cardData) => {
+        this._isLiked = cardData.isLiked;
+
+        likeButton.classList.toggle(
+          "card__like-button_is-active",
+          this._isLiked
+        );
+      })
+      .catch((err) => {
+        console.log("Erro ao alterar curtida:", err);
+      })
+      .finally(() => {
+        likeButton.disabled = false;
+      });
   }
 
   _handleDeleteButtonClick(evt) {
@@ -45,10 +66,16 @@ _handleImageClick() {
     const cardElement = this._getTemplate();
     const cardImage = cardElement.querySelector(".card__image");
     const cardTitle = cardElement.querySelector(".card__title");
+    const likeButton = cardElement.querySelector(".card__like-button");
 
     cardImage.src = this._link;
     cardImage.alt = this._name;
     cardTitle.textContent = this._name;
+
+    likeButton.classList.toggle(
+      "card__like-button_is-active",
+      this._isLiked
+    );
 
     this._setEventListeners(cardElement);
 
