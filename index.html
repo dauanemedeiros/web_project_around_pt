@@ -139,6 +139,46 @@
           <p class="popup__caption"></p>
         </div>
       </div>
+          <div class="popup" id="confirmation-popup">
+        <div class="popup__content">
+          <button
+            aria-label="Fechar pop-up"
+            class="popup__close"
+            type="button"
+          ></button>
+
+          <h3 class="popup__title">Tem certeza?</h3>
+
+          <button class="button popup__button" type="button">
+            Sim
+          </button>
+        </div>
+      </div>
+          <div class="popup" id="avatar-popup">
+        <div class="popup__content">
+          <button
+            aria-label="Fechar pop-up"
+            class="popup__close"
+            type="button"
+          ></button>
+
+          <h3 class="popup__title">Alterar avatar</h3>
+
+          <form class="popup__form" id="avatar-form">
+            <input
+              class="popup__input"
+              name="avatar"
+              placeholder="Link da nova imagem"
+              type="url"
+              required
+            />
+
+            <button class="button popup__button" type="submit">
+              Salvar
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
     <script src="./scripts/index.js" type="module"></script>
   </body>

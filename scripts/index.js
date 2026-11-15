@@ -5,6 +5,7 @@ import { PopupWithImage } from "./PopupWithImage.js";
 import { Section } from "./Section.js";
 import { UserInfo } from "./UserInfo.js";
 import { Api } from "./Api.js";
+import { PopupWithConfirmation } from "./PopupWithConfirmation.js";
 
 console.log("JavaScript conectado com sucesso!");
 
@@ -18,7 +19,8 @@ const api = new Api({
 
 const userInfo = new UserInfo({
   nameSelector: ".profile__title",
-  jobSelector: ".profile__description"
+  jobSelector: ".profile__description",
+  avatarSelector: ".profile__image"
 });
 
 let section;
@@ -26,25 +28,29 @@ let section;
 api.getAppInfo()
   .then(([userData, cardsFromServer]) => {
 
-    // Atualizar as informações do perfil
     userInfo.setUserInfo({
       name: userData.name,
       job: userData.about
     });
 
+    userInfo.setUserAvatar(userData.avatar);
+    const userId = userData._id;
   
-    section = new Section({
+  section = new Section({
       items: cardsFromServer,
       renderer: (item) => {
         const card = new Card(
-  item.name,
-  item.link,
-  "#card-template",
-  handleImageClick,
-  item._id,
-  item.isLiked,
-  api
-);
+          item.name,
+          item.link,
+          "#card-template",
+          handleImageClick,
+          item._id,
+          item.isLiked,
+          api,
+          confirmationPopup,
+          item.owner,
+            userId
+        );
 
         return card.generateCard();
       }
@@ -58,10 +64,21 @@ api.getAppInfo()
   });
 
 const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
-  userInfo.setUserInfo({
-    name: inputValues.name,
-    job: inputValues.description
-  });
+  api.editProfile(
+    inputValues.name,
+    inputValues.description
+  )
+    .then((userData) => {
+      userInfo.setUserInfo({
+        name: userData.name,
+        job: userData.about
+      });
+
+      editPopup.close();
+    })
+    .catch((err) => {
+      console.log("Erro ao editar perfil:", err);
+    });
 });
 
 const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
@@ -71,14 +88,17 @@ const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
   )
     .then((cardData) => {
       const card = new Card(
-  cardData.name,
-  cardData.link,
-  "#card-template",
-  handleImageClick,
-  cardData._id,
-  cardData.isLiked,
-  api
-);
+      cardData.name,
+      cardData.link,
+      "#card-template",
+      handleImageClick,
+      cardData._id,
+      cardData.isLiked,
+      api,
+      confirmationPopup,
+      item.owner,
+      userId
+    );
 
       section.addItem(card.generateCard());
       addCardPopup.close();
@@ -89,9 +109,26 @@ const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
 });
 
 const imagePopup = new PopupWithImage("#image-popup");
+const confirmationPopup = new PopupWithConfirmation("#confirmation-popup");
+
+const avatarPopup = new PopupWithForm("#avatar-popup", (inputValues) => {
+  api.updateAvatar(inputValues.avatar)
+    .then((userData) => {
+      userInfo.setUserAvatar(userData.avatar);
+      avatarPopup.close();
+    })
+    .catch((err) => {
+      console.log("Erro ao atualizar avatar:", err);
+    });
+});
+
+avatarPopup.setEventListeners();
+
+confirmationPopup.setEventListeners();
 
 
 const editButton = document.querySelector(".profile__edit-button");
+const avatarImage = document.querySelector(".profile__image");
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 
@@ -151,4 +188,8 @@ addCardButton.addEventListener("click", () => {
   addCardForm.reset();
   addCardFormValidator.resetValidation();
   addCardPopup.open();
+});
+
+avatarImage.addEventListener("click", () => {
+  avatarPopup.open();
 });

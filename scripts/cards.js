@@ -1,5 +1,5 @@
 export class Card {
-  constructor(name, link, templateSelector, handleImageClick, cardId, isLiked, api) {
+  constructor(name, link, templateSelector, handleImageClick, cardId, isLiked, api, confirmationPopup, ownerId, userId) {
     this._name = name;
     this._link = link;
     this._templateSelector = templateSelector;
@@ -7,6 +7,9 @@ export class Card {
     this._cardId = cardId;
     this._isLiked = isLiked;
     this._api = api;
+    this._confirmationPopup = confirmationPopup;
+    this._ownerId = ownerId;
+    this._userId = userId;
   }
 
   _handleLikeButtonClick(evt) {
@@ -32,8 +35,21 @@ export class Card {
   }
 
   _handleDeleteButtonClick(evt) {
-    evt.currentTarget.closest(".card").remove();
-  }
+  const cardElement = evt.currentTarget.closest(".card");
+
+  this._confirmationPopup.open();
+
+  this._confirmationPopup.setSubmitAction(() => {
+    this._api.deleteCard(this._cardId)
+      .then(() => {
+        cardElement.remove();
+        this._confirmationPopup.close();
+      })
+      .catch((err) => {
+        console.log("Erro ao excluir cartão:", err);
+      });
+  });
+}
 
 _handleImageClick() {
   this._handleImageClickCallback(this._name, this._link);
@@ -49,18 +65,22 @@ _handleImageClick() {
     const deleteButton = cardElement.querySelector(".card__delete-button");
     const cardImage = cardElement.querySelector(".card__image");
 
-    likeButton.addEventListener("click", (evt) => {
-      this._handleLikeButtonClick(evt);
-    });
-
+     if (this._ownerId !== this._userId) {
+    deleteButton.remove();
+  } else {
     deleteButton.addEventListener("click", (evt) => {
       this._handleDeleteButtonClick(evt);
     });
-
-    cardImage.addEventListener("click", () => {
-      this._handleImageClick();
-    });
   }
+
+  likeButton.addEventListener("click", (evt) => {
+    this._handleLikeButtonClick(evt);
+  });
+
+  cardImage.addEventListener("click", () => {
+    this._handleImageClick();
+  });
+}
 
   generateCard() {
     const cardElement = this._getTemplate();
