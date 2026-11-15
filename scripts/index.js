@@ -23,7 +23,8 @@ const userInfo = new UserInfo({
   avatarSelector: ".profile__image"
 });
 
-let section;
+let section;  
+let userId;
 
 api.getAppInfo()
   .then(([userData, cardsFromServer]) => {
@@ -64,6 +65,11 @@ api.getAppInfo()
   });
 
 const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
+  const saveButton = document.querySelector("#edit-popup .popup__button");
+
+  saveButton.textContent = "Salvando...";
+  saveButton.disabled = true;
+
   api.editProfile(
     inputValues.name,
     inputValues.description
@@ -78,33 +84,46 @@ const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
     })
     .catch((err) => {
       console.log("Erro ao editar perfil:", err);
+    })
+    .finally(() => {
+      saveButton.textContent = "Salvar";
+      saveButton.disabled = false;
     });
 });
 
 const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
+  const saveButton = document.querySelector("#new-card-popup .popup__button");
+
+  saveButton.textContent = "Salvando...";
+  saveButton.disabled = true;
+
   api.addCard(
     inputValues["place-name"],
     inputValues.link
   )
     .then((cardData) => {
       const card = new Card(
-      cardData.name,
-      cardData.link,
-      "#card-template",
-      handleImageClick,
-      cardData._id,
-      cardData.isLiked,
-      api,
-      confirmationPopup,
-      item.owner,
-      userId
-    );
+        cardData.name,
+        cardData.link,
+        "#card-template",
+        handleImageClick,
+        cardData._id,
+        cardData.isLiked,
+        api,
+        confirmationPopup,
+        cardData.owner,
+        userId
+      );
 
       section.addItem(card.generateCard());
       addCardPopup.close();
     })
     .catch((err) => {
       console.log("Erro ao adicionar cartão:", err);
+    })
+    .finally(() => {
+      saveButton.textContent = "Criar";
+      saveButton.disabled = false;
     });
 });
 
@@ -112,6 +131,11 @@ const imagePopup = new PopupWithImage("#image-popup");
 const confirmationPopup = new PopupWithConfirmation("#confirmation-popup");
 
 const avatarPopup = new PopupWithForm("#avatar-popup", (inputValues) => {
+  const saveButton = document.querySelector("#avatar-popup .popup__button");
+
+  saveButton.textContent = "Salvando...";
+  saveButton.disabled = true;
+
   api.updateAvatar(inputValues.avatar)
     .then((userData) => {
       userInfo.setUserAvatar(userData.avatar);
@@ -119,6 +143,10 @@ const avatarPopup = new PopupWithForm("#avatar-popup", (inputValues) => {
     })
     .catch((err) => {
       console.log("Erro ao atualizar avatar:", err);
+    })
+    .finally(() => {
+      saveButton.textContent = "Salvar";
+      saveButton.disabled = false;
     });
 });
 
