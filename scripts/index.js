@@ -1,9 +1,10 @@
 import { Card } from "./cards.js";
 import { FormValidator } from "./FormValidator.js";
-import { PopupWithForm } from "./PopupWithForm.js"
-import { PopupWithImage } from "./PopupWithImage.js"
+import { PopupWithForm } from "./PopupWithForm.js";
+import { PopupWithImage } from "./PopupWithImage.js";
 import { Section } from "./Section.js";
-import { UserInfo } from "./UserInfo.js"
+import { UserInfo } from "./UserInfo.js";
+import { Api } from "./Api.js";
 
 console.log("JavaScript conectado com sucesso!");
 
@@ -38,6 +39,23 @@ const initialCards = [
         link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lago.jpg"
     }
 ];
+
+const api = new Api({
+  baseUrl: "https://around-api.pt-br.tripleten-services.com/v1",
+  headers: {
+    authorization: "12432412-83ec-4f36-bc20-fe67d262f032",
+    "Content-Type": "application/json"
+  }
+});
+
+api.getAppInfo()
+  .then(([userData, initialCards]) => {
+    console.log("Informações do usuário:", userData);
+    console.log("Cartões:", initialCards);
+  })
+  .catch((err) => {
+    console.log("Erro ao carregar informações:", err);
+  });
 
 const userInfo = new UserInfo({
   nameSelector: ".profile__title",
