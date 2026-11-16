@@ -1,11 +1,11 @@
-import { Card } from "./cards.js";
-import { FormValidator } from "./FormValidator.js";
-import { PopupWithForm } from "./PopupWithForm.js";
-import { PopupWithImage } from "./PopupWithImage.js";
-import { Section } from "./Section.js";
-import { UserInfo } from "./UserInfo.js";
-import { Api } from "./Api.js";
-import { PopupWithConfirmation } from "./PopupWithConfirmation.js";
+import { Card } from "../components/cards.js";
+import { FormValidator } from "../components/FormValidator.js";
+import { PopupWithForm } from "../components/PopupWithForm.js";
+import { PopupWithImage } from "../components/PopupWithImage.js";
+import { Section } from "../components/Section.js";
+import { UserInfo } from "../components/UserInfo.js";
+import { Api } from "../components/Api.js";
+import { PopupWithConfirmation } from "../components/PopupWithConfirmation.js";
 
 console.log("JavaScript conectado com sucesso!");
 
