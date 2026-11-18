@@ -1,5 +1,6 @@
 export class Card {
-  constructor(name, link, templateSelector, handleImageClick, cardId, isLiked, api, confirmationPopup, ownerId, userId) {
+  constructor({name, link, templateSelector, handleImageClick, cardId, isLiked, 
+    api, confirmationPopup, ownerId, userId}) {
     this._name = name;
     this._link = link;
     this._templateSelector = templateSelector;
@@ -13,47 +14,24 @@ export class Card {
   }
 
   _handleLikeButtonClick(evt) {
-    const likeButton = evt.currentTarget;
-
-    likeButton.disabled = true;
-
-    this._api.changeLikeCardStatus(this._cardId, this._isLiked)
-      .then((cardData) => {
-        this._isLiked = cardData.isLiked;
-
-        likeButton.classList.toggle(
-          "card__like-button_is-active",
-          this._isLiked
-        );
-      })
-      .catch((err) => {
-        console.log("Erro ao alterar curtida:", err);
-      })
-      .finally(() => {
-        likeButton.disabled = false;
-      });
+    this._handleLikeClickCallback(
+      evt.currentTarget,
+      this._isLiked,
+      (newStatus) => {
+        this._isLiked = newStatus;
+      }
+    );
   }
 
   _handleDeleteButtonClick(evt) {
-  const cardElement = evt.currentTarget.closest(".card");
+    const cardElement = evt.currentTarget.closest(".card");
 
-  this._confirmationPopup.open();
+    this._handleDeleteClickCallback(cardElement);
+  }
 
-  this._confirmationPopup.setSubmitAction(() => {
-    this._api.deleteCard(this._cardId)
-      .then(() => {
-        cardElement.remove();
-        this._confirmationPopup.close();
-      })
-      .catch((err) => {
-        console.log("Erro ao excluir cartão:", err);
-      });
-  });
-}
-
-_handleImageClick() {
-  this._handleImageClickCallback(this._name, this._link);
-}
+  _handleImageClick() {
+    this._handleImageClickCallback(this._name, this._link);
+  }
 
   _getTemplate() {
     const template = document.querySelector(this._templateSelector);
@@ -65,22 +43,22 @@ _handleImageClick() {
     const deleteButton = cardElement.querySelector(".card__delete-button");
     const cardImage = cardElement.querySelector(".card__image");
 
-     if (this._ownerId !== this._userId) {
-    deleteButton.remove();
-  } else {
-    deleteButton.addEventListener("click", (evt) => {
-      this._handleDeleteButtonClick(evt);
+    if (this._ownerId !== this._userId) {
+      deleteButton.remove();
+    } else {
+      deleteButton.addEventListener("click", (evt) => {
+        this._handleDeleteButtonClick(evt);
+      });
+    }
+
+    likeButton.addEventListener("click", (evt) => {
+      this._handleLikeButtonClick(evt);
+    });
+
+    cardImage.addEventListener("click", () => {
+      this._handleImageClick();
     });
   }
-
-  likeButton.addEventListener("click", (evt) => {
-    this._handleLikeButtonClick(evt);
-  });
-
-  cardImage.addEventListener("click", () => {
-    this._handleImageClick();
-  });
-}
 
   generateCard() {
     const cardElement = this._getTemplate();

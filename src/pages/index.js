@@ -7,8 +7,6 @@ import { UserInfo } from "../components/UserInfo.js";
 import { Api } from "../components/Api.js";
 import { PopupWithConfirmation } from "../components/PopupWithConfirmation.js";
 
-console.log("JavaScript conectado com sucesso!");
-
 const api = new Api({
   baseUrl: "https://around-api.pt-br.tripleten-services.com/v1",
   headers: {
@@ -17,14 +15,55 @@ const api = new Api({
   }
 });
 
-const userInfo = new UserInfo({
-  nameSelector: ".profile__title",
-  jobSelector: ".profile__description",
-  avatarSelector: ".profile__image"
-});
+function handleImageClick(name, link) {
+  imagePopup.open(link, name);
+}
 
-let section;  
-let userId;
+function handleLikeClick(cardId, likeButton, isLiked, updateLikeStatus) {
+  likeButton.disabled = true;
+
+  api.changeLikeCardStatus(cardId, isLiked)
+    .then((cardData) => {
+      updateLikeStatus(cardData.isLiked);
+
+      likeButton.classList.toggle(
+        "card__like-button_is-active",
+        cardData.isLiked
+      );
+    })
+    .catch((err) => {
+      console.log("Erro ao alterar curtida:", err);
+    })
+    .finally(() => {
+      likeButton.disabled = false;
+    });
+}
+
+function handleDeleteClick(cardId, cardElement) {
+  confirmationPopup.open();
+
+  confirmationPopup.setSubmitAction(() => {
+    const confirmButton = document.querySelector(
+      "#confirmation-popup .popup__button"
+    );
+
+    confirmButton.disabled = true;
+    confirmButton.textContent = "Excluindo...";
+
+    api.deleteCard(cardId)
+      .then(() => {
+        cardElement.remove();
+        confirmationPopup.close();
+      })
+      .catch((err) => {
+        console.log("Erro ao excluir cartão:", err);
+      })
+      .finally(() => {
+        confirmButton.disabled = false;
+        confirmButton.textContent = "Sim";
+      });
+  });
+}
 
 api.getAppInfo()
   .then(([userData, cardsFromServer]) => {
@@ -35,26 +74,40 @@ api.getAppInfo()
     });
 
     userInfo.setUserAvatar(userData.avatar);
-    const userId = userData._id;
-  
-  section = new Section({
+
+    userId = userData._id;
+
+    section = new Section({
       items: cardsFromServer,
+
       renderer: (item) => {
-        const card = new Card(
-          item.name,
-          item.link,
-          "#card-template",
+        const card = new Card({
+          name: item.name,
+          link: item.link,
+          templateSelector: "#card-template",
           handleImageClick,
-          item._id,
-          item.isLiked,
-          api,
-          confirmationPopup,
-          item.owner,
-            userId
-        );
+
+          handleLikeClick: (likeButton, isLiked, updateLikeStatus) => {
+            handleLikeClick(
+              item._id,
+              likeButton,
+              isLiked,
+              updateLikeStatus
+            );
+          },
+
+          handleDeleteClick: (cardElement) => {
+            handleDeleteClick(item._id, cardElement);
+          },
+
+          isLiked: item.isLiked,
+          ownerId: item.owner,
+          userId: userId
+        });
 
         return card.generateCard();
       }
+
     }, ".cards__list");
 
     section.renderItems();
@@ -64,7 +117,7 @@ api.getAppInfo()
     console.log("Erro ao carregar informações:", err);
   });
 
-const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
+  const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
   const saveButton = document.querySelector("#edit-popup .popup__button");
 
   saveButton.textContent = "Salvando...";
@@ -91,7 +144,7 @@ const editPopup = new PopupWithForm("#edit-popup", (inputValues) => {
     });
 });
 
-const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
+  const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
   const saveButton = document.querySelector("#new-card-popup .popup__button");
 
   saveButton.textContent = "Salvando...";
@@ -102,21 +155,35 @@ const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
     inputValues.link
   )
     .then((cardData) => {
-      const card = new Card(
-        cardData.name,
-        cardData.link,
-        "#card-template",
+
+      const card = new Card({
+        name: cardData.name,
+        link: cardData.link,
+        templateSelector: "#card-template",
         handleImageClick,
-        cardData._id,
-        cardData.isLiked,
-        api,
-        confirmationPopup,
-        cardData.owner,
-        userId
-      );
+
+        handleLikeClick: (likeButton, isLiked, updateLikeStatus) => {
+          handleLikeClick(
+            cardData._id,
+            likeButton,
+            isLiked,
+            updateLikeStatus
+          );
+        },
+
+        handleDeleteClick: (cardElement) => {
+          handleDeleteClick(cardData._id, cardElement);
+        },
+
+        isLiked: cardData.isLiked,
+        ownerId: cardData.owner,
+        userId: userId
+      });
 
       section.addItem(card.generateCard());
+
       addCardPopup.close();
+
     })
     .catch((err) => {
       console.log("Erro ao adicionar cartão:", err);
@@ -127,10 +194,7 @@ const addCardPopup = new PopupWithForm("#new-card-popup", (inputValues) => {
     });
 });
 
-const imagePopup = new PopupWithImage("#image-popup");
-const confirmationPopup = new PopupWithConfirmation("#confirmation-popup");
-
-const avatarPopup = new PopupWithForm("#avatar-popup", (inputValues) => {
+  const avatarPopup = new PopupWithForm("#avatar-popup", (inputValues) => {
   const saveButton = document.querySelector("#avatar-popup .popup__button");
 
   saveButton.textContent = "Salvando...";
@@ -151,30 +215,18 @@ const avatarPopup = new PopupWithForm("#avatar-popup", (inputValues) => {
 });
 
 avatarPopup.setEventListeners();
-
 confirmationPopup.setEventListeners();
-
 
 const editButton = document.querySelector(".profile__edit-button");
 const avatarImage = document.querySelector(".profile__image");
-const profileTitle = document.querySelector(".profile__title");
-const profileDescription = document.querySelector(".profile__description");
+const avatarForm = document.querySelector("#avatar-form");
 
 const editForm = document.querySelector("#edit-profile-form");
 const nameInput = document.querySelector("#name-input");
 const aboutInput = document.querySelector("#about-input");
 
-
 const addCardButton = document.querySelector(".profile__add-button");
 const addCardForm = document.querySelector("#new-card-form");
-const titleInput = document.querySelector("#titulo-input");
-const imageInput = document.querySelector("#image-input");
-
-const cardContainer = document.querySelector(".cards__list");
-
-function handleImageClick(name, link) {
-  imagePopup.open(link, name);
-}
 
 const validationConfig = {
   inputSelector: ".popup__input",
@@ -183,11 +235,6 @@ const validationConfig = {
   errorClass: "popup__input-error_active",
   inactiveButtonClass: "button_disabled",
 };
-
-editPopup.setEventListeners();
-addCardPopup.setEventListeners();
-imagePopup.setEventListeners();
-
 
 const editFormValidator = new FormValidator(
   validationConfig,
@@ -199,8 +246,24 @@ const addCardFormValidator = new FormValidator(
   addCardForm
 );
 
+const avatarFormValidator = new FormValidator(
+  validationConfig,
+  avatarForm
+);
+
 editFormValidator.setEventListeners();
 addCardFormValidator.setEventListeners();
+avatarFormValidator.setEventListeners();
+
+editPopup.setEventListeners();
+addCardPopup.setEventListeners();
+imagePopup.setEventListeners();
+
+avatarImage.addEventListener("click", () => {
+  avatarFormValidator.resetValidation();
+  avatarPopup.open();
+});
+
 
 editButton.addEventListener("click", () => {
   const userData = userInfo.getUserInfo();

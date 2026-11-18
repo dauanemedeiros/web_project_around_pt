@@ -165,17 +165,23 @@
           <h3 class="popup__title">Alterar avatar</h3>
 
           <form class="popup__form" id="avatar-form">
-            <input
+           <input
               class="popup__input"
+              id="avatar-input"
               name="avatar"
               placeholder="Link da nova imagem"
               type="url"
               required
-            />
+             />
 
-            <button class="button popup__button" type="submit">
+             <span
+              class="popup__input-error"
+              id="avatar-input-error"
+             ></span>
+
+             <button class="button popup__button" type="submit">
               Salvar
-            </button>
+             </button>
           </form>
         </div>
       </div>
