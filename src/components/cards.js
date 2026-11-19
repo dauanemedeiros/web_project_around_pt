@@ -13,7 +13,7 @@ export class Card {
     this._userId = userId;
   }
 
-  _handleLikeButtonClick(evt) {
+ _handleLikeButtonClick(evt) {
     this._handleLikeClickCallback(
       evt.currentTarget,
       this._isLiked,
@@ -35,6 +35,7 @@ export class Card {
 
   _getTemplate() {
     const template = document.querySelector(this._templateSelector);
+
     return template.content.querySelector(".card").cloneNode(true);
   }
 

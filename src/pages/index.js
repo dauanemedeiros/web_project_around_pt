@@ -15,6 +15,21 @@ const api = new Api({
   }
 });
 
+let userId;
+let section;
+
+const userInfo = new UserInfo({
+  nameSelector: ".profile__title",
+  jobSelector: ".profile__description",
+  avatarSelector: ".profile__image"
+});
+
+const imagePopup = new PopupWithImage("#image-popup");
+
+const confirmationPopup = new PopupWithConfirmation(
+  "#confirmation-popup"
+);
+
 function handleImageClick(name, link) {
   imagePopup.open(link, name);
 }
@@ -279,8 +294,4 @@ addCardButton.addEventListener("click", () => {
   addCardForm.reset();
   addCardFormValidator.resetValidation();
   addCardPopup.open();
-});
-
-avatarImage.addEventListener("click", () => {
-  avatarPopup.open();
 });

@@ -4,13 +4,15 @@ export class Api {
     this._headers = options.headers;
   }
 
-  _checkResponse(res) {
-    if (res.ok) {
-      return res.json();
-    }
-
-    return Promise.reject(`Erro: ${res.status}`);
+ _checkResponse(res) {
+  if (res.ok) {
+    return res.json();
   }
+
+  return Promise.reject(
+    new Error(`Erro: ${res.status}`)
+  );
+}
 
   getUserInfo() {
     return fetch(`${this._baseUrl}/users/me`, {
