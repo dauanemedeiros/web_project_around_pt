@@ -80,6 +80,34 @@ function handleDeleteClick(cardId, cardElement) {
   });
 }
 
+function createCard(item) {
+  const card = new Card({
+    name: item.name,
+    link: item.link,
+    templateSelector: "#card-template",
+    handleImageClick,
+
+    handleLikeClick: (likeButton, isLiked, updateLikeStatus) => {
+      handleLikeClick(
+        item._id,
+        likeButton,
+        isLiked,
+        updateLikeStatus
+      );
+    },
+
+    handleDeleteClick: (cardElement) => {
+      handleDeleteClick(item._id, cardElement);
+    },
+
+    isLiked: item.isLiked,
+    ownerId: item.owner,
+    userId: userId
+  });
+
+  return card.generateCard();
+}
+
 api.getAppInfo()
   .then(([userData, cardsFromServer]) => {
 
@@ -94,35 +122,7 @@ api.getAppInfo()
 
     section = new Section({
       items: cardsFromServer,
-
-      renderer: (item) => {
-        const card = new Card({
-          name: item.name,
-          link: item.link,
-          templateSelector: "#card-template",
-          handleImageClick,
-
-          handleLikeClick: (likeButton, isLiked, updateLikeStatus) => {
-            handleLikeClick(
-              item._id,
-              likeButton,
-              isLiked,
-              updateLikeStatus
-            );
-          },
-
-          handleDeleteClick: (cardElement) => {
-            handleDeleteClick(item._id, cardElement);
-          },
-
-          isLiked: item.isLiked,
-          ownerId: item.owner,
-          userId: userId
-        });
-
-        return card.generateCard();
-      }
-
+      renderer: createCard
     }, ".cards__list");
 
     section.renderItems();
@@ -165,49 +165,23 @@ api.getAppInfo()
   saveButton.textContent = "Salvando...";
   saveButton.disabled = true;
 
-  api.addCard(
-    inputValues["place-name"],
-    inputValues.link
-  )
-    .then((cardData) => {
+api.addCard(
+  inputValues["place-name"],
+  inputValues.link
+)
+  .then((cardData) => {
+    section.addItem(createCard(cardData));
 
-      const card = new Card({
-        name: cardData.name,
-        link: cardData.link,
-        templateSelector: "#card-template",
-        handleImageClick,
-
-        handleLikeClick: (likeButton, isLiked, updateLikeStatus) => {
-          handleLikeClick(
-            cardData._id,
-            likeButton,
-            isLiked,
-            updateLikeStatus
-          );
-        },
-
-        handleDeleteClick: (cardElement) => {
-          handleDeleteClick(cardData._id, cardElement);
-        },
-
-        isLiked: cardData.isLiked,
-        ownerId: cardData.owner,
-        userId: userId
-      });
-
-      section.addItem(card.generateCard());
-
-      addCardPopup.close();
-
-    })
-    .catch((err) => {
-      console.log("Erro ao adicionar cartão:", err);
-    })
-    .finally(() => {
-      saveButton.textContent = "Criar";
-      saveButton.disabled = false;
-    });
-});
+    addCardPopup.close();
+  })
+  .catch((err) => {
+    console.log("Erro ao adicionar cartão:", err);
+  })
+  .finally(() => {
+    saveButton.textContent = "Criar";
+    saveButton.disabled = false;
+  });
+  });
 
   const avatarPopup = new PopupWithForm("#avatar-popup", (inputValues) => {
   const saveButton = document.querySelector("#avatar-popup .popup__button");

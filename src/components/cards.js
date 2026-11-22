@@ -1,14 +1,13 @@
 export class Card {
-  constructor({name, link, templateSelector, handleImageClick, cardId, isLiked, 
-    api, confirmationPopup, ownerId, userId}) {
+  constructor({name, link, templateSelector, handleImageClick, handleLikeClick, 
+    handleDeleteClick, isLiked, ownerId, userId}) {
     this._name = name;
     this._link = link;
     this._templateSelector = templateSelector;
     this._handleImageClickCallback = handleImageClick;
-    this._cardId = cardId;
+    this._handleLikeClick = handleLikeClick,
+    this._handleDeleteClick = handleDeleteClick,
     this._isLiked = isLiked;
-    this._api = api;
-    this._confirmationPopup = confirmationPopup;
     this._ownerId = ownerId;
     this._userId = userId;
   }
